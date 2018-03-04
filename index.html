@@ -1,0 +1,685 @@
+<html>     <head>         <script type="text/javascript"> function ScaleEyes(_scale, eye) { var LeftEye =
+document.getElementById("LeftEye"); var LeftPupil = document.getElementById("LeftPupil"); var RightEye =
+document.getElementById("RightEye");                 var RightPupil = document.getElementById("RightPupil");
+var scale = Number(_scale);
+				
+				if(eye == 0) {
+					LeftEye.setAttribute("d", "M206 " + (208-scale).toString() + " C " + (160-(scale*2)).toString() 
+					+ " " + (199-scale).toString() + ", " + (160-(scale*2)).toString() + " " + (260+scale).toString() 
+					+ ", 206 " + (252+scale).toString());
+				
+					LeftPupil.setAttribute("d", "M206 " + (208-scale).toString() + " C " + (160-(scale*2)).toString() 
+					+ " " + (204-scale).toString() + ", " + (180-(scale*2)).toString() + " " + (255+scale).toString() 
+					+ ", 206 " + (246+scale).toString());
+				}
+				else if(eye == 1) {
+					RightEye.setAttribute("d", "M350 " + (208-scale).toString() + " C " + (304-(scale*2)).toString() 
+					+ " " + (199-scale).toString() + ", " + (304-(scale*2)).toString() + " " + (260+scale).toString() 
+					+ ", 350 " + (252+scale).toString());
+				
+					RightPupil.setAttribute("d", "M350 " + (208-scale).toString() + " C " + (304-(scale*2)).toString() 
+					+ " " + (204-scale).toString() + ", " + (324-(scale*2)).toString() + " " + (255+scale).toString() 
+					+ ", 350 " + (246+scale).toString());
+				}
+			}
+		</script>
+		<script type="text/javascript">
+			function ScaleChimney(_scale) {
+				var Chimney = document.getElementById("Chimney");
+				var ChimneySide = document.getElementById("ChimneySide");
+				var scale = Number(_scale);
+				
+				Chimney.setAttribute("points", "325,108 325,"+ (35-scale).toString() + " 360," + (35-scale).toString() + " 360,140");
+				if(scale < -15) scale = -15;
+				ChimneySide.setAttribute("points", "325,50 325," + (35-scale).toString() + " 360," + (35-scale).toString() + " 360,50");
+			}
+		</script>
+		<script type="text/javascript">
+			function ChangeEyeColor(color) {
+				var LeftEye = document.getElementById("LeftEye");
+				var RightEye = document.getElementById("RightEye");
+				LeftEye.setAttribute("fill", color);
+				RightEye.setAttribute("fill", color);
+			}
+		</script>
+		<script type="text/javascript">
+			function ChangeRoofColor(color) {
+				var Roof1 = document.getElementById("Roof1");
+				var Roof2 = document.getElementById("roof");
+				var Roof3 = document.getElementById("rooftop");
+				var roofseg1 = document.getElementById("roofseg1");
+				var roofseg2 = document.getElementById("roofseg2");
+				Roof1.setAttribute("fill", color);
+				Roof2.setAttribute("stroke", color);
+				Roof3.setAttribute("fill", color);
+				roofseg1.setAttribute("stroke", color);
+				roofseg2.setAttribute("stroke", color);
+			}
+		</script>
+		<script type="text/javascript">
+			function ChangeChimneyColor(color) {
+				var Chimney1 = document.getElementById("Chimney");
+				var Chimney2 = document.getElementById("ChimneySide");
+				var Chimney3 = document.getElementById("ChimneyTop");
+				Chimney1.setAttribute("fill", color);
+				Chimney2.setAttribute("fill", color);
+				Chimney3.setAttribute("fill", color);
+			}
+		</script>
+		<script type="text/javascript">
+			function ChangeWallColor(color) {
+				var Wall1 = document.getElementById("Wall1");
+				var Wall2 = document.getElementById("Wall2");
+				var RoofWall = document.getElementById("roof");
+				Wall1.setAttribute("fill", color);
+				Wall2.setAttribute("fill", color);
+				RoofWall.setAttribute("fill", color);
+			}
+		</script>
+		<script type="text/javascript">
+			function TranslateFrontView() {
+				var x = document.getElementById("TranslateX").value;
+				var y = document.getElementById("TranslateY").value;
+				var FrontCheck = document.getElementById("FrontCheck");
+				var SideCheck = document.getElementById("SideCheck");
+				var TopCheck = document.getElementById("TopCheck");
+				var FrontView = document.getElementById("FrontView");
+				var SideView = document.getElementById("SideView");
+				var TopView = document.getElementById("TopView");
+				if(FrontCheck.checked)
+					FrontView.setAttribute("transform", "translate(" + x.toString() + 
+					"," + y.toString() + ")");
+				if(SideCheck.checked)
+					SideView.setAttribute("transform", "translate(" + x.toString() + 
+					"," + y.toString() + ")");
+				if(TopCheck.checked)
+					TopView.setAttribute("transform", "translate(" + x.toString() + 
+					"," + y.toString() + ")");
+			}
+		</script>
+		<script type="text/javascript">
+			var selectedElement = 0;
+			var currX = 0;
+			var currY = 0;
+			var currM = [0 ,0 ,0 ,0 ,0 ,0];
+			//var currM = 0;
+			function selectElement(evt, tar) {
+			  selectedElement = tar;
+			  currX = evt.clientX;
+			  currY = evt.clientY;
+			  //currM = selectedElement.getAttribute("transform").slice(7,-1).split(' ');
+			  currM[0] = tar.getCTM().a;
+			  currM[1] = tar.getCTM().b;
+			  currM[2] = tar.getCTM().c;
+			  currM[3] = tar.getCTM().d;
+			  currM[4] = tar.getCTM().e;
+			  currM[5] = tar.getCTM().f;
+			  console.log(currM[0] + " " + currM[1] + " " + currM[2] + " " + currM[3] + " " + currM[4] + " " + currM[5]);
+			
+			  for(var i=0; i<currM.length; i++) {
+				currM[i] = parseFloat(currM[i]);
+			  }
+			  if(document.getElementById("UnlockedCheck").checked) {
+				  selectedElement.setAttributeNS(null, "onmousemove", "moveElement(evt)");
+				  selectedElement.setAttributeNS(null, "onmouseup", "deselectElement(evt)");
+			  }
+			}
+			function moveElement(evt) {
+			  var dx = evt.clientX - currX;
+			  var dy = evt.clientY - currY;
+			  currM[4] += dx;
+			  currM[5] += dy;
+			  selectedElement.setAttributeNS(null, "transform", "matrix(" + currM.join(' ') + ")");
+			  currX = evt.clientX;
+			  currY = evt.clientY;
+			}
+			function deselectElement(evt) {
+			    if(selectedElement != 0) {
+					selectedElement.removeAttributeNS(null, "onmousemove");
+					selectedElement.removeAttributeNS(null, "onmouseout");
+					selectedElement.removeAttributeNS(null, "onmouseup");
+					selectedElement = 0;
+				}
+			}
+		</script>
+		<script type="text/javascript">
+			function rotateElement(value, id) {
+				if(Number(id) == 1) {
+					var element = document.getElementById("FrontView");
+					//calculate delta angle
+					var deltaangle = Number(value) - Number(document.getElementById("prevanglefront").value);
+					var x = 256;
+					var y = 256;
+				}
+				if(Number(id) == 2) {
+					var element = document.getElementById("SideView");
+					//calculate delta angle
+					var deltaangle = Number(value) - Number(document.getElementById("prevangleside").value);
+					var x = 256;
+					var y = 220;
+				}
+				if(Number(id) == 3) {
+					var element = document.getElementById("TopView");
+					//calculate delta angle
+					var deltaangle = Number(value) - Number(document.getElementById("prevangletop").value);
+					var x = 256;
+					var y = 200;
+				}
+				//get CTM
+				var CTM = element.getCTM();
+				var CTM2 = element.getCTM();
+				//Create and identity matrix
+				CTM2.a = 1;
+				CTM2.b = 0;
+				CTM2.c = 0;
+				CTM2.d = 1;
+				CTM2.e = 0;
+				CTM2.f = 0;
+				//translate to origin
+				CTM = CTM.multiply(CTM2.translate(x,y));
+				//rotate
+				CTM = CTM.multiply(CTM2.rotate(deltaangle));
+				//translate back
+				CTM = CTM.multiply(CTM2.translate(-x, -y));
+				//apply transformation
+				element.setAttributeNS(null, "transform", "matrix(" + CTM.a + " " + CTM.b + " " + CTM.c + " " + CTM.d + " " + CTM.e + " " + CTM.f + ")");
+				//record new angle
+				if(Number(id) == 1)
+					document.getElementById("prevanglefront").value = value;
+				if(Number(id) == 2) 
+					document.getElementById("prevangleside").value = value;
+				if(Number(id) == 3)
+					document.getElementById("prevangletop").value = value;
+			}
+		</script>
+		<script type="text/javascript">
+			function scaleElement(id) {
+				if(Number(id) == 1) {
+					var element = document.getElementById("FrontView");
+					var prevscale = Number(document.getElementById("prevscalefront").value);
+					var value = Number(document.getElementById("ScaleFrontValue").value);
+				}
+				if(Number(id) == 2) {
+					var element = document.getElementById("SideView");
+					var prevscale = Number(document.getElementById("prevscaleside").value);
+					var value = Number(document.getElementById("ScaleSideValue").value);
+				}
+				if(Number(id) == 3) {
+					var element = document.getElementById("TopView");
+					var prevscale = Number(document.getElementById("prevscaletop").value);
+					var value = Number(document.getElementById("ScaleTopValue").value);
+				}
+				if(value>0) {
+					//get CTM
+					var CTM = element.getCTM();
+					var CTM2 = element.getCTM();
+					
+					//Create and identity matrix
+					CTM2.a = 1;
+					CTM2.b = 0;
+					CTM2.c = 0;
+					CTM2.d = 1;
+					CTM2.e = 0;
+					CTM2.f = 0;
+					
+					//Undo any previous scaling
+					//CTM = CTM.inverse();
+					CTM = CTM.multiply(CTM2.translate((-256*((1/prevscale)-1)), (-256*((1/prevscale)-1))));
+					CTM = CTM.multiply(CTM2.scale((1/prevscale), (1/prevscale)));
+					
+					//scale
+					CTM = CTM.multiply(CTM2.translate((-256*(value-1)), (-256*(value-1))));
+					CTM = CTM.multiply(CTM2.scale(value,value));
+					//apply transformation
+					element.setAttributeNS(null, "transform", "matrix(" + CTM.a + " " + CTM.b + " " + CTM.c + " " + CTM.d + " " + CTM.e + " " + CTM.f + ")");
+					
+					if(Number(id) == 1)
+						document.getElementById("prevscalefront").value = value;
+					if(Number(id) == 2)
+						document.getElementById("prevscaleside").value = value;
+					if(Number(id) == 3)
+						document.getElementById("prevscaletop").value = value;
+				}
+				else
+					alert("Scale must be greater than 0");
+			}
+		</script>
+		<script type="text/javascript">
+			function shearElement(id) {
+				if(Number(id) == 1) {
+					var element = document.getElementById("FrontView");
+					var valuex = Number(document.getElementById("ShearFrontValueX").value);
+					var valuey = Number(document.getElementById("ShearFrontValueY").value);
+					var x = 256;
+					var y = 256;
+				}
+				if(Number(id) == 2) {
+					var element = document.getElementById("SideView");
+					var valuex = Number(document.getElementById("ShearSideValueX").value);
+					var valuey = Number(document.getElementById("ShearSideValueY").value);
+					var x = 256;
+					var y = 220;
+				}
+				if(Number(id) == 3) {
+					var element = document.getElementById("TopView");
+					var valuex = Number(document.getElementById("ShearTopValueX").value);
+					var valuey = Number(document.getElementById("ShearTopValueY").value);
+					var x = 256;
+					var y = 200;
+				}
+					var CTM = element.getCTM();
+					var CTM2 = element.getCTM();
+					
+					//Create and identity matrix
+					CTM2.a = 1;
+					CTM2.b = 0;
+					CTM2.c = 0;
+					CTM2.d = 1;
+					CTM2.e = 0;
+					CTM2.f = 0;
+					
+					//translate to origin
+					CTM = CTM.multiply(CTM2.translate(x,y));
+					//shear/skew
+					CTM = CTM.multiply(CTM2.skewX(valuex));
+					//shear/skew
+					CTM = CTM.multiply(CTM2.skewY(valuey));
+					//translate back
+					CTM = CTM.multiply(CTM2.translate(-x, -y));
+					//apply transformation
+					element.setAttributeNS(null, "transform", "matrix(" + CTM.a + " " + CTM.b + " " + CTM.c + " " + CTM.d + " " + CTM.e + " " + CTM.f + ")");
+			}
+		</script>
+	</head>
+	<body bgcolor="#E1EDEB" onload="Initialize3DView();">
+		<div style="width:1400px">
+			<div style="float:left;padding-right:10px;border-right:4px solid black;"">
+			<!--Top Left-->
+				<div style="float:left;border-right:2px solid blue;border-bottom:2px solid blue;">
+					<svg width="512" height="400">
+						<text x="5" y="20" font-family="'Lucida Grande', sans-serif" font-size="14" fill="red">Front</text>
+						<!--Sun-->
+						<circle cx="60" cy="60" r="40" stroke="#ffc700" stroke-width="3" fill="#ffc700" />
+						<polyline points="31,31 18,18" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim1" attributeName="points" dur="1s" begin="0s; anim2.end" fill="freeze"
+								from="31,31 18,18"
+								to="31,31 28,28"
+							 />
+							 <animate id="anim2" attributeName="points" dur="1s" begin="anim1.end" fill="freeze"
+								from="31,31 28,28"
+								to="31,31 18,18"
+							 />
+						</polyline>
+						<polyline points="41,23 32,2" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim3" attributeName="points" dur=".5s" begin="0s; anim4.end" fill="freeze"
+								from="41,23 32,2"
+								to="41,23 40,22"
+							 />
+							 <animate id="anim4" attributeName="points" dur=".5s" begin="anim3.end" fill="freeze"
+								from="41,23 40,22"
+								to="41,23 32,2"
+							 />
+						</polyline>
+						<polyline points="51,1 54,19" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim5" attributeName="points" dur="1s" begin="0s; anim6.end" fill="freeze"
+								from="51,1 54,19"
+								to="53.5,16 54,19"
+							 />
+							 <animate id="anim6" attributeName="points" dur="1s" begin="anim5.end" fill="freeze"
+								from="53.5,16 54,19"
+								to="51,1 54,19"
+							 />
+						</polyline>
+						<polyline points="68,19 72,1" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim7" attributeName="points" dur=".5s" begin="0s; anim8.end" fill="freeze"
+								from="68,19 72,1"
+								to="68,19 69,16"
+							 />
+							 <animate id="anim8" attributeName="points" dur=".5s" begin="anim7.end" fill="freeze"
+								from="68,19 69,16"
+								to="68,19 72,1"
+							 />
+						</polyline>
+						<polyline points="80,23.5 90,6" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim9" attributeName="points" dur="1s" begin="0s; anim10.end" fill="freeze"
+								from="80,23.5 90,6"
+								to="80,23.5 82,20"
+							 />
+							 <animate id="anim10" attributeName="points" dur="1s" begin="anim9.end" fill="freeze"
+								from="80,23.5 82,20"
+								to="80,23.5 90,6"
+							 />
+						</polyline>
+						<polyline points="90,31 105,17" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim11" attributeName="points" dur=".5s" begin="0s; anim12.end" fill="freeze"
+								from="90,31 105,17"
+								to="90,31 92,29"
+							 />
+							 <animate id="anim12" attributeName="points" dur=".5s" begin="anim11.end" fill="freeze"
+								from="90,31 92,29"
+								to="90,31 105,17"
+							 />
+						</polyline>
+						<polyline points="97,41 113,32" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim13" attributeName="points" dur="1s" begin="0s; anim14.end" fill="freeze"
+								from="97,41 113,32"
+								to="97,41 100,39"
+							 />
+							 <animate id="anim14" attributeName="points" dur="1s" begin="anim13.end" fill="freeze"
+								from="97,41 100,39"
+								to="97,41 113,32"
+							 />
+						</polyline>
+						<polyline points="100.5,51 117,48" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim15" attributeName="points" dur=".5s" begin="0s; anim16.end" fill="freeze"
+								from="100.5,51 117,48"
+								to="100.5,51 104,50"
+							 />
+							 <animate id="anim16" attributeName="points" dur=".5s" begin="anim15.end" fill="freeze"
+								from="100.5,51 104,50"
+								to="100.5,51 117,48"
+							 />
+						</polyline>
+						<polyline points="101.5,62 118,62" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim17" attributeName="points" dur=".5s" begin="0s; anim18.end" fill="freeze"
+								from="101.5,62 116,63"
+								to="101.5,62 103.5,62.5"
+							 />
+							 <animate id="anim18" attributeName="points" dur=".5s" begin="anim17.end" fill="freeze"
+								from="101.5,62 103.5,62.5"
+								to="101.5,62 116,63"
+							 />
+						</polyline>
+						<polyline points="99.5,73 114,78.5" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim19" attributeName="points" dur="1s" begin="0s; anim20.end" fill="freeze"
+								from="99.5,73 114,78.5"
+								to="99.5,73 104.5,75"
+							 />
+							 <animate id="anim20" attributeName="points" dur="1s" begin="anim19.end" fill="freeze"
+								from="99.5,73 104.5,75"
+								to="99.5,73 114,78.5"
+							 />
+						</polyline>
+						<polyline points="94.5,83 107,92" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim21" attributeName="points" dur=".5s" begin="0s; anim22.end" fill="freeze"
+								from="94.5,83 107,92"
+								to="94.5,83 97,85"
+							 />
+							 <animate id="anim22" attributeName="points" dur=".5s" begin="anim21.end" fill="freeze"
+								from="94.5,83 97,85"
+								to="94.5,83 107,92"
+							 />
+						</polyline>
+						<polyline points="87,91.5 96,103" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim23" attributeName="points" dur="1s" begin="0s; anim24.end" fill="freeze"
+								from="87,91.5 96,103"
+								to="87,91 90,94.5"
+							 />
+							 <animate id="anim24" attributeName="points" dur="1s" begin="anim23.end" fill="freeze"
+								from="87,91 90,94.5"
+								to="87,91.5 96,103"
+							 />
+						</polyline>
+						<polyline points="77,98 82.5,111" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim25" attributeName="points" dur=".5s" begin="0s; anim26.end" fill="freeze"
+								from="77,98 82.5,111"
+								to="77,98 79,102.5"
+							 />
+							 <animate id="anim26" attributeName="points" dur=".5s" begin="anim25.end" fill="freeze"
+								from="77,98 79,102.5"
+								to="77,98 82.5,111"
+							 />
+						</polyline>
+						<polyline points="64,101.5 65.5,116" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim27" attributeName="points" dur="1s" begin="0s; anim28.end" fill="freeze"
+								from="64,101 65.5,116"
+								to="64,101 64.5,104.5"
+							 />
+							 <animate id="anim28" attributeName="points" dur="1s" begin="anim27.end" fill="freeze"
+								from="64,101 64.5,104.5"
+								to="64,101 65.5,116"
+							 />
+						</polyline>
+						<polyline points="50,100 47,115" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim29" attributeName="points" dur=".5s" begin="0s; anim30.end" fill="freeze"
+								from="50,100 47,115"
+								to="50,100 49,104"
+							 />
+							 <animate id="anim30" attributeName="points" dur=".5s" begin="anim29.end" fill="freeze"
+								from="50,100 49,104"
+								to="50,100 47,115"
+							 />
+						</polyline>
+						<polyline points="39,96 32,109" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim31" attributeName="points" dur="1s" begin="0s; anim32.end" fill="freeze"
+								from="39,96 32,109"
+								to="39,96 37,99"
+							 />
+							 <animate id="anim32" attributeName="points" dur="1s" begin="anim31.end" fill="freeze"
+								from="39,96 37,99"
+								to="39,96 32,109"
+							 />
+						</polyline>
+						<polyline points="30,88 19,99" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim33" attributeName="points" dur=".5s" begin="0s; anim34.end" fill="freeze"
+								from="30,88 19,99"
+								to="30,88 27,91"
+							 />
+							 <animate id="anim34" attributeName="points" dur=".5s" begin="anim33.end" fill="freeze"
+								from="30,88 27,91"
+								to="30,88 19,99"
+							 />
+						</polyline>
+						<polyline points="22,77 8, 84.5" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim35" attributeName="points" dur="1s" begin="0s; anim36.end" fill="freeze"
+								from="22,77 8,84.5"
+								to="22,77 16,80"
+							 />
+							 <animate id="anim36" attributeName="points" dur="1s" begin="anim35.end" fill="freeze"
+								from="22,77 16,80"
+								to="22,77 8, 84.5"
+							 />
+						</polyline>
+						<polyline points="19,66 5,68" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim37" attributeName="points" dur=".5s" begin="0s; anim38.end" fill="freeze"
+								from="19,66 5,68"
+								to="19,66 17,66.5"
+							 />
+							 <animate id="anim38" attributeName="points" dur=".5s" begin="anim37.end" fill="freeze"
+								from="19,66 17,66.5"
+								to="19,66 5,68"
+							 />
+						</polyline>
+						<polyline points="19,54 5,51" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim39" attributeName="points" dur="1s" begin="0s; anim40.end" fill="freeze"
+								from="19,54 5,51"
+								to="19,54 17,53.5"
+							 />
+							 <animate id="anim40" attributeName="points" dur="1s" begin="anim39.end" fill="freeze"
+								from="19,54 17,53.5"
+								to="19,54 5,51"
+							 />
+						</polyline>
+						<polyline points="22.5,42 7,33.5" style="stroke:#ffc700;stroke-width:3">
+							<animate id="anim41" attributeName="points" dur=".5s" begin="0s; anim42.end" fill="freeze"
+								from="22.5,42 7,33.5"
+								to="22.5,42 18.5,39.5"
+							 />
+							 <animate id="anim42" attributeName="points" dur=".5s" begin="anim41.end" fill="freeze"
+								from="22.5,42 18.5,39.5"
+								to="22.5,42 7,33.5"
+							 />
+						</polyline>
+						<g id="FrontView" onmousedown="selectElement(evt, this);" transform="matrix(1 0 0 1 0 0)">
+						<!--Walls-->
+						<polyline id="Wall1" points="88,200 88,380 424,380 424,200" fill="#efe4ba" style="stroke:black;stroke-width:3"/> 
+						<!--Roof-->
+						<polyline id="roof" points="88,200 262,50 424,200" fill="#efe4ba" stroke="black" style="stroke-width:3" />
+						<polyline id="roofseg1" points="88,200 54,230" fill="none" stroke="black" style="stroke-width:3" />
+						<polyline id="roofseg2" points="424,200 457,230" fill="none" stroke="black" style="stroke-width:3" />
+						<!--Mouth-->
+						<path d="M 154 300 q 106 130 200 0" stroke="black" stroke-width="3" fill="none" />
+						<path d="M 154 300 q 106 20 200 0" stroke="black" stroke-width="3" fill="none" />
+						<!--Windows-->
+						<rect x="156" y="200" width="50" height="60" fill="#c9fcfc" style="stroke-width:3;stroke:rgb(0,0,0)" />
+						<rect x="300" y="200" width="50" height="60" fill="#c9fcfc" style="stroke-width:3;stroke:rgb(0,0,0)" />
+						<!--Left Eyeball-->
+						<path id="LeftEye" d="M206 208 C 160 199, 160 260, 206 252" stroke="black" fill="#96beff" style="stroke-width:3;"/>
+						<path id="LeftPupil" d="M206 208 C 160 204, 180 255, 206 246" stroke="black" style="stroke-width:3;fill:black;"/>
+						<!--Right Eyeball-->
+						<path id="RightEye" d="M350 208 C 304 199, 304 260, 350 252" stroke="black" fill="#96beff" style="stroke-width:3"/>
+						<path id="RightPupil" d="M350 208 C 304 204, 324 255, 350 246" stroke="black" fill="transparent" style="stroke-width:3;fill:black;"/>
+						<!--Chimney-->
+						<polyline id="Chimney" points="325,108 325,35 360,35 360,140" fill="#aa2727" style="stroke:black;stroke-width:3" />
+						<!--Teeth-->
+						<polyline points="185,306 185,320 200,320 200,308" style="fill:white;stroke:black;stroke-width:3" />
+						<polyline points="220,310 220,320 235,320 235,311" style="fill:white;stroke:black;stroke-width:3" />
+						<polyline points="255,364 255,348 275,348 275,361" style="fill:white;stroke:black;stroke-width:3" />
+						</g>
+					</svg>
+				</div>
+				
+				<div style="float:left;border-bottom:2px solid blue;">
+					<svg width="512" height="400" viewport-fill="white">
+						<text x="5" y="20" font-family="'Lucida Grande', sans-serif" font-size="14" fill="red">Side</text>
+						<g id="SideView" onmousedown="selectElement(evt, this);" transform="matrix(1 0 0 1 0 0)">
+						<!--Walls-->
+						<polyline id="Wall2" points="88,229 88,380 424,380 424,229" fill="#efe4ba" style="stroke:black;stroke-width:3" />
+						<!--Roof-->
+						<polyline id="Roof1" points="60,230 452,230 452,50 60,50 60,230" fill=black style="stroke:black;stroke-width:3" />
+						<!--Windows-->
+						<rect x="160" y="250" width="50" height="60" fill="#c9fcfc" style="stroke-width:3;stroke:rgb(0,0,0)" />
+						<rect x="300" y="250" width="50" height="60" fill="#c9fcfc" style="stroke-width:3;stroke:rgb(0,0,0)" />
+						<!--Chimney-->
+						<polyline id="ChimneySide" points="325,50 325,35 360,35 360,50" fill="#aa2727" style="stroke:black;stroke-width:3" />
+						</g>
+					</svg>
+				</div>
+				
+				<div style="clear:left;"></div>
+				
+				<div style="float:left;border-right:2px solid blue;">
+					<svg width="512" height="400" viewport-fill="white">
+						<text x="5" y="20" font-family="'Lucida Grande', sans-serif" font-size="14" fill="red">Top</text>
+						<g id="TopView" onmousedown="selectElement(evt, this);" transform="matrix(1 0 0 1 0 0)">
+						<!--Roof-->
+						<polyline id="rooftop" points="54,4 54,396 457,396 457,4 54,4" fill="black" style="stroke:black;stroke-width:3" />
+						<polyline points="258,5 258,395" fill="none" style="stroke:gray;stroke-width:3" />
+						<!--Chimney-->
+						<polyline id="ChimneyTop" points="325,277 360,277 360,312 325,312 325,276" fill="#aa2727" style="stroke:black;stroke-width:3" />
+						</g>
+					</svg>
+				</div>
+				
+				<!--3D Projection-->
+				<div style="float:left;">
+					<canvas id="ThreeDView" width="512" height="400"></canvas>
+					<br />
+					<script src="gl-matrix.js"></script>
+					<script src="3DView.js"></script>
+				</div>
+			</div>
+			
+			<!--UI-->
+			<div style="float:left;margin-left:10px;border-color:black;width:280px">
+				<b>Left Eye Size</b><br>
+				<input type="range" min="-13" max="7" value="0" step="1" onchange="ScaleEyes(this.value,0);" value="0" style="width:300px;"/><br>
+				
+				<b>Right Eye Size</b><br>
+				<input type="range" min="-13" max="7" value="0" step="1" onchange="ScaleEyes(this.value,1);" value="0" style="width:300px;"/><br>
+				
+				<b>Chimney Height</b><br>
+				<input type="range" min="-60" max="33" value="0" step="1" onchange="ScaleChimney(this.value);" style="width:300px;"/><br>
+				<div style="float:left;width:100px">
+					<b>Eye Color</b><br>
+					<button type="button" value="#96beff" onclick="ChangeEyeColor(this.value);">Light Blue</button><br>
+					<button type="button" value="#76fcae" onclick="ChangeEyeColor(this.value);">Light Green</button><br>
+					<button type="button" value="#cc68ff" onclick="ChangeEyeColor(this.value);">Purple</button><br>
+					<button type="button" value="#f751c2" onclick="ChangeEyeColor(this.value);">Pink</button><br>
+					<button type="button" value="#e9f750" onclick="ChangeEyeColor(this.value);">Yellow</button><br>
+					<button type="button" value="#fc7e44" onclick="ChangeEyeColor(this.value);">Orange</button>
+				</div>
+				<div style="float:left;">
+					<br><b>Roof Color</b><br>
+					<button type="button" value="#7c4a0d" onclick="ChangeRoofColor(this.value);">Brown</button><br>
+					<button type="button" value="#841a05" onclick="ChangeRoofColor(this.value);">Burgundy</button><br>
+					<button type="button" value="#4f4b4a" onclick="ChangeRoofColor(this.value);">Gray</button><br>
+					<button type="button" value="#000000" onclick="ChangeRoofColor(this.value);">Black</button>
+				</div>
+				<div style="float:left;">
+					<br><b>Chimney Color</b><br>
+					<button type="button" value="#aa2727" onclick="ChangeChimneyColor(this.value);">Red</button><br>
+					<button type="button" value="#827c7c" onclick="ChangeChimneyColor(this.value);">Gray</button><br>
+				</div>
+				<div style="float:left;">
+					<br><b>Wall Color</b><br>
+					<button type="button" value="#edba6f" onclick="ChangeWallColor(this.value);">Tan</button><br>
+					<button type="button" value="#efe4ba" onclick="ChangeWallColor(this.value);">Beige</button><br>
+				</div>
+			</div>
+			<div style="float:left;margin-left:10px;margin-top:20px;">
+				<b><u>Tranformations</u></b><br><br>
+				<b>Translate</b>
+				<input type="checkbox" id="UnlockedCheck">Unlock<br><br>
+				<b>Rotate Front</b>
+				<input type="range" min="0" max="360" value="0" step="1" oninput="rotateElement(this.value, 1);"/><br>
+				<b>Rotate Side</b>
+				<input type="range" min="0" max="360" value="0" step="1" oninput="rotateElement(this.value, 2);"/><br>
+				<b>Rotate Top</b>
+				<input type="range" min="0" max="360" value="0" step="60" oninput="rotateElement(this.value, 3);"/><br><br>
+				<input type="text" id="prevanglefront" value="0" hidden />
+				<input type="text" id="prevangleside" value="0" hidden />
+				<input type="text" id="prevangletop" value="0" hidden />
+				
+				<button type="button" id="ScaleFront" onclick="scaleElement(1);" style="width:90px;">Scale Front</button>
+				<input type="text" value="1" id="ScaleFrontValue" style="width:35px"/><br>
+				<input type="text" id="prevscalefront" value="1" hidden />
+				<button type="button" id="ScaleSide" onclick="scaleElement(2);" style="width:90px;">Scale Side</button>
+				<input type="text" value="1" id="ScaleSideValue" style="width:35px"/><br>
+				<input type="text" id="prevscaleside" value="1" hidden />
+				<button type="button" id="ScaleTop" onclick="scaleElement(3);" style="width:90px;">Scale Top</button>
+				<input type="text" value="1" id="ScaleTopValue" style="width:35px"/><br><br>
+				<input type="text" id="prevscaletop" value="1" hidden />
+				
+				<button type="button" id="ShearFront" onclick="shearElement(1);" style="width:90px;">Shear Front</button>
+				<b>X px:</b><input type="text" value="0" id="ShearFrontValueX" style="width:35px"/>
+				<b>Y px:</b><input type="text" value="0" id="ShearFrontValueY" style="width:35px"/><br>
+				
+				<button type="button" id="ShearSide" onclick="shearElement(2);" style="width:90px;">Shear Side</button>
+				<b>X px:</b><input type="text" value="0" id="ShearSideValueX" style="width:35px"/>
+				<b>Y px:</b><input type="text" value="0" id="ShearSideValueY" style="width:35px"/><br>
+				
+				<button type="button" id="ShearTop" onclick="shearElement(3);" style="width:90px;">Shear Top</button>
+				<b>X px:</b><input type="text" value="0" id="ShearTopValueX" style="width:35px"/>
+				<b>Y px:</b><input type="text" value="0" id="ShearTopValueY" style="width:35px"/><br>
+
+				<br>
+				<button type="button" id="rotate3D" style="width:90px;">Rotate 3D</button>
+				<button type="button" id="Isometric" style="width:90px;">Isometric</button><br>
+				<button type="button" id="Dimetric" style="width:90px;">Dimetric</button>
+				<button type="button" id="Trimetric" style="width:90px;">Trimetric</button><br>
+				<button type="button" id="Oblique" style="width:90px;">Oblique</button>
+				<button type="button" id="OnePoint" style="width:90px;">1 Point</button><br>
+				<button type="button" id="TwoPoint" style="width:90px;">2 Point</button>
+				<button type="button" id="ThreePoint" style="width:90px;">3 Point</button><br>
+
+				<b>3D Rotate X</b>
+				<input type="range" id="Sliderx" min="0" max="360" value="0" step="1"/><br>
+				<input type="text" id="prevSliderx" value="0" hidden />
+				<b>3D Rotate Y</b>
+				<input type="range" id="Slidery" min="0" max="360" value="0" step="1"/><br>
+				<input type="text" id="prevSlidery" value="0" hidden />
+
+				<b>3D Translate X</b>
+				<input type="range" id="TransSliderx" min="-5" max="5" value="0" step=".05"/><br>
+				<input type="text" id="prevTransSliderx" value="0" hidden />
+				<b>3D Translate Y</b>
+				<input type="range" id="TransSlidery" min="-5" max="5" value="0" step=".05"/><br>
+				<input type="text" id="prevTransSlidery" value="0" hidden />
+				<b>3D Translate Z</b>
+				<input type="range" id="TransSliderz" min="-5" max="5" value="0" step=".05"/><br>
+				<input type="text" id="prevTransSliderz" value="0" hidden />
+			</div>
+		</div>
+	</body>
+</html>
